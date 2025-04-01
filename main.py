@@ -10,9 +10,6 @@ if len(sys.argv) == 1:
 # Set images path
 media_path = sys.argv[1]
 
-# Set mode
-do_prefix = len(sys.argv) > 2 and sys.argv[2] == 'prefix' # Prefixes the original filename with the selected EXIF data
-
 def get_all_files():
     """Get all files from media_path."""
     files = []
@@ -40,10 +37,7 @@ def get_new_path(orig_path, created_time):
     new_filename = str(created_time).replace(' ', '_')
     new_filename = ''.join(filter(str.isdigit, new_filename))[:14]
 
-    if do_prefix and new_filename != filename_without_extension:
-        new_path = new_filename + '_' + filename_without_extension + file_extension
-    else:
-        new_path = new_filename + file_extension
+    new_path = new_filename + '_' + filename_without_extension + file_extension
 
     return os.path.join(file_dir, new_path)
 
