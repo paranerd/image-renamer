@@ -11,6 +11,17 @@ if len(sys.argv) == 1:
 # Set images path
 media_path = sys.argv[1]
 
+CREATED_TIME_TAGS = [
+    'EXIF:DateTimeOriginal',
+    'XMP:DateTimeOriginal',
+    'EXIF:CreateDate',
+    'XMP:CreateDate',
+    'QuickTime:CreateDate',
+    'QuickTime:MediaCreateDate',
+    'QuickTime:TrackCreateDate',
+    'File:FileModifyDate',
+]
+
 def get_all_files():
     """Get all files from media_path."""
     files = []
@@ -87,12 +98,15 @@ for idx, d in enumerate(metadata, start=1):
     path = d["SourceFile"]
 
     try:
-        if 'EXIF:DateTimeOriginal' in d:
-            created_time = d['EXIF:DateTimeOriginal']
-        elif 'XMP:DateTimeOriginal' in d:
-            created_time = d['XMP:DateTimeOriginal']
-        elif 'File:FileModifyDate' in d:
-            created_time = d['File:FileModifyDate']
+        created_time = None
+        for tag in CREATED_TIME_TAGS:
+            if tag in d:
+                created_time = d[tag]
+                break
+
+        if created_time is None:
+            print(f'[{idx}/{total}] Could not find creation time for {path}. Skipping.')
+            continue
 
         new_path = get_new_path(path, created_time)
 
@@ -100,4 +114,4 @@ for idx, d in enumerate(metadata, start=1):
 
         os.rename(path, new_path)
     except Exception as e:
-        print(f'[{idx}/{total}] Error loading data for {path}')
+        print(f'[{idx}/{total}] Error processing {path}: {e}')
